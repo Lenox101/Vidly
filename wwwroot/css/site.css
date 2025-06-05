@@ -1,0 +1,32 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  
+}
+
+/* Custom navbar styles */
+:root {
+    --primary-color: #5e3023;
+    --secondary-color: #895737;
+    --dark-color: #1a1a1a;
+    --light-color: #f8f4e3;
+    --accent-color: #d4b483;
+    --text-muted: #6c757d;
+}

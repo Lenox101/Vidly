@@ -1,0 +1,103 @@
+@model Vidly.Models.User
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Login to Vidly</h4>
+            </div>
+            <div class="card-body">
+                <form id="loginForm" asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div id="loginErrorSummary" class="text-danger mb-3"></div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="control-label"></label>
+                        <input asp-for="Username" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </div>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <p>Don't have an account? <a asp-action="Signup" class="text-primary">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            const loginErrorSummary = document.getElementById('loginErrorSummary');
+            if (loginErrorSummary) {
+                loginErrorSummary.innerHTML = '';
+            }
+            const validationSummaryDiv = document.querySelector('div[asp-validation-summary="ModelOnly"]');
+            if (validationSummaryDiv) {
+                validationSummaryDiv.innerHTML = '';
+            }
+
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    // Store token in localStorage
+                    localStorage.setItem('jwtToken', data.token);
+                    localStorage.setItem('username', data.username);
+                    // Redirect to home page
+                    window.location.href = '/Home/Index';
+                } else if (data.error) {
+                    // Display the error in the new dedicated div
+                    const errorDisplay = document.getElementById('loginErrorSummary');
+                    if (errorDisplay) {
+                        errorDisplay.innerHTML = `${data.error}`;
+                    } else {
+                        // Fallback if the new div isn't found (should not happen)
+                        const validationSummary = document.querySelector('div[asp-validation-summary="ModelOnly"]');
+                        if (validationSummary) {
+                            validationSummary.innerHTML = `<div class="text-danger">${data.error}</div>`;
+                        }
+                    }
+                } else {
+                    const errorDisplay = document.getElementById('loginErrorSummary');
+                    if (errorDisplay) {
+                        errorDisplay.innerHTML = 'An unexpected error occurred. Please try again.';
+                    } else {
+                         const validationSummary = document.querySelector('div[asp-validation-summary="ModelOnly"]');
+                        if (validationSummary) {
+                             validationSummary.innerHTML = `<div class="text-danger">An unexpected error occurred. Please try again.</div>`;
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+}
